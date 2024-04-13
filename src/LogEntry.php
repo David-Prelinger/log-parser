@@ -17,7 +17,7 @@ class LogEntry
     public float $requestTime;
     public string $serial;
     public string $version;
-    public ?Specs $specs; // Encoded string
+    public Specs $specs; // Encoded string
     public string $notAfter;
     public int $remainingDays;
 

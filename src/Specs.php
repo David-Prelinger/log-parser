@@ -27,13 +27,18 @@ class Specs
         $this->machine = $data['machine'] ?? '';
         $this->mem = $data['mem'] ?? '';
         $this->cpu = $data['cpu'] ?? '';
-        $this->diskRoot = $data['diskRoot'] ?? '';
-        $this->diskData = $data['diskData'] ?? '';
+        $this->diskRoot = $data['disk_root'] ?? '';
+        $this->diskData = $data['disk_data'] ?? '';
         $this->uptime = $data['uptime'] ?? '';
         $this->fwversion = $data['fwversion'] ?? '';
         $this->l2tp = $data['l2tp'] ?? '';
         $this->qos = $data['qos'] ?? '';
         $this->httpaveng = $data['httpaveng'] ?? '';
         $this->spcf = $data['spcf'] ?? '';
+    }
+
+    public function getHardwareType(): string
+    {
+        return $this->machine . $this->cpu;
     }
 }

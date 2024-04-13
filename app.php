@@ -18,6 +18,7 @@ function readTheFile($path)
 function parseLogEntries($filePath)
 {
     $serialCounts = [];
+    $hardwareClasses = [];
 
     foreach (readTheFile($filePath) as $line) {
         $logEntry = new LogEntry($line);
@@ -30,6 +31,10 @@ function parseLogEntries($filePath)
             }
             if (!empty($logEntry->specs->mac)) {
                 $serialCounts[$logEntry->serial]['devices'][$logEntry->specs->mac] = true;
+            }
+
+            if (isset($logEntry->specs)) {
+                $hardwareClasses[$logEntry->specs->getHardwareType()][$logEntry->serial] = true;
             }
         }
     }
@@ -60,6 +65,18 @@ function parseLogEntries($filePath)
     echo "Top 10 Serials by Unique Devices:\n";
     foreach (array_slice($serialCounts, 0, 10, true) as $serial => $data) {
         echo "Serial: $serial, Unique Devices: " . count($data['devices'] ?? []) . "\n";
+    }
+
+    // Sort the serials by occurrence, maintaining key association
+    uasort($hardwareClasses, function ($a, $b) {
+        return count($b) - count($a);
+    });
+
+    echo "Hardware classes\n";
+    // arsort($hardwareClasses);
+    foreach ($hardwareClasses as $hardware => $data) {
+        $amountOfSerialLicenseNumbers = count($data);
+        echo "Hardware: $hardware, Amount of serial numbers: $amountOfSerialLicenseNumbers \n";
     }
 }
 
