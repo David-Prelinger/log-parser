@@ -28,5 +28,27 @@ class LogEntry
         } else {
             echo "Serial number field not found.\n";
         }
+
+        if (preg_match('/specs=([^ ]+)/', $logLine, $matches)) {
+            $rawSpecs = $matches[1];
+            $decodedBase64 = base64_decode($rawSpecs);
+            if (!$decodedBase64) {
+                echo "Error decoding base64\n";
+            } else {
+                $gzDecoded = @gzdecode($decodedBase64);
+                if (!$gzDecoded) {
+                    echo "Error decoding gz\n";
+                } else {
+                    $data = json_decode($gzDecoded, true);
+                    if (is_array($data)) {
+                        $this->specs = new \LogParser\Specs($data);
+                    } else {
+                        echo "Error decoding JSON\n";
+                    }
+                }
+            }
+        } else {
+            echo "Specs field not found.\n";
+        }
     }
 }
