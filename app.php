@@ -4,6 +4,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 use LogParser\LogEntry;
 
+/** Reads the file line by line */
 function readTheFile($path)
 {
     $handle = fopen($path, "r");
@@ -15,6 +16,7 @@ function readTheFile($path)
     fclose($handle);
 }
 
+/** Iterates through each line in the given file and displays the results for tasks 1-3. */
 function parseLogEntries($filePath)
 {
     $serialCounts = [];
@@ -24,35 +26,51 @@ function parseLogEntries($filePath)
         $logEntry = new LogEntry($line);
 
         if (!empty($logEntry->serial)) {
+            // Task 1: Count how often each serial number was found in log
             if (isset($serialCounts[$logEntry->serial]['count'])) {
                 $serialCounts[$logEntry->serial]['count']++;
             } else {
                 $serialCounts[$logEntry->serial]['count'] = 1;
             }
+
+            // Task 2: Count how many devices use each serial number
             if (!empty($logEntry->specs->mac)) {
                 $serialCounts[$logEntry->serial]['devices'][$logEntry->specs->mac] = true;
             }
 
+            // Task 3: Count individual serial numbers by hardware type
             if (isset($logEntry->specs)) {
                 $hardwareClasses[$logEntry->specs->getHardwareType()][$logEntry->serial] = true;
             }
         }
     }
 
-    // Sort the serials by occurrence, maintaining key association
+    printTopSerialNumbers($serialCounts);
+
+    printSerialsInstalledOnMostDevices($serialCounts);
+
+    printHardwareClassesWithAmountOfSerialNumbers($hardwareClasses);
+}
+
+/** Prints the top 10 license serial numbers which requested the server the most to the console. */
+function printTopSerialNumbers($serialCounts)
+{
     uasort($serialCounts, function ($a, $b) {
         return $b['count'] - $a['count'];
     });
 
-    // Get the top 10 most frequent serial numbers
     $topSerials = array_slice($serialCounts, 0, 10, true);
 
-    echo "Top Serial Numbers:\n";
+    echo "\n\nTop 10 license serial numbers which requested the server the most:\n";
 
     foreach ($topSerials as $serial => $data) {
         echo "Serial: $serial, Count:" . $data['count'] . "\n";
     }
+}
 
+/** Prints the top 10 license serial numbers which are installed on most unique devices. */
+function printSerialsInstalledOnMostDevices($serialCounts)
+{
     // Sort by the number of unique devices
     uasort($serialCounts, function ($a, $b) {
         $aDevicesCount = isset($a['devices']) ? count($a['devices']) : 0;
@@ -60,25 +78,26 @@ function parseLogEntries($filePath)
         return $bDevicesCount - $aDevicesCount;
     });
 
-
-    // Display top 10 serials by unique devices
-    echo "Top 10 Serials by Unique Devices:\n";
+    echo "\n\nTop 10 Serials by Unique Devices:\n";
     foreach (array_slice($serialCounts, 0, 10, true) as $serial => $data) {
         echo "Serial: $serial, Unique Devices: " . count($data['devices'] ?? []) . "\n";
     }
+}
 
-    // Sort the serials by occurrence, maintaining key association
+/** Prints the different hardware classes with the amount of serial numbers assigned to them. */
+function printHardwareClassesWithAmountOfSerialNumbers($hardwareClasses)
+{
     uasort($hardwareClasses, function ($a, $b) {
         return count($b) - count($a);
     });
 
-    echo "Hardware classes\n";
-    // arsort($hardwareClasses);
+    echo "\n\nHardware classes\n";
     foreach ($hardwareClasses as $hardware => $data) {
         $amountOfSerialLicenseNumbers = count($data);
         echo "Hardware: $hardware, Amount of serial numbers: $amountOfSerialLicenseNumbers \n";
     }
 }
 
+//popen("xz -cd --files0=" . $fname, 'r');
 $filePath = "updatev12-access-pseudonymized.log";
 parseLogEntries($filePath);
