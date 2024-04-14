@@ -2,24 +2,11 @@
 
 namespace LogParser;
 
-
+/** Represents one line in the log. Only has those attributes that are needed for the tasks */
 class LogEntry
 {
-    public string $clientIpAddress;
-    public string $identdInformation;
-    public string $timestamp;
-    public string $requestMethod;
-    public string $requestUri;
-    public string $httpVersion;
-    public int $statusCode;
-    public int $contentLength;
-    public string $proxy;
-    public float $requestTime;
     public string $serial;
-    public string $version;
-    public Specs $specs; // Encoded string
-    public string $notAfter;
-    public int $remainingDays;
+    public Specs $specs;
 
     public function __construct(string $logLine)
     {

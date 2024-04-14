@@ -7,7 +7,8 @@ use LogParser\LogEntry;
 /** Reads the file line by line */
 function readTheFile($path)
 {
-    $handle = fopen($path, "r");
+    shell_exec(escapeshellcmd("unxz $path"));
+    $handle = fopen(substr($path, 0, -3), "r");
 
     while (!feof($handle)) {
         yield trim(fgets($handle));
@@ -98,6 +99,8 @@ function printHardwareClassesWithAmountOfSerialNumbers($hardwareClasses)
     }
 }
 
-//popen("xz -cd --files0=" . $fname, 'r');
-$filePath = "updatev12-access-pseudonymized.log";
-parseLogEntries($filePath);
+if ($argc > 1) {
+    parseLogEntries($argv[1]);
+} else {
+    echo "Please provide a filename as an argument.\n";
+}
